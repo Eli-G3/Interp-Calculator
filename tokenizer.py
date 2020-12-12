@@ -2,15 +2,37 @@
 
 class Tokenizer:
 
+    token_dict = {
+        "&" : "MIN",
+        "$" : "MAX",
+        "@" : "AVG",
+        "!" : "FCT",
+        "%" : "MOD",
+        "~" : "NOT",
+        "^" : "POW",
+        "/" : "DIV",
+        "*" : "MUL",
+        "-" : "SUB",
+        "+" : "ADD",
+        "[" : "LPAREN",
+        "]" : "RPAREN"
+    }
+
+
+
     def __init__(self, program:str):
         self.__program = program
         self.__cursor = 0
 
+    def set_program(self, program):
+        self.__program = program
+        self.__cursor = 0
+
     def has_more_tokens(self):
-        return (self.__cursor < len(self.__program))
+        return self.__cursor < len(self.__program)
 
     def get_next_token(self):
-        if (not self.has_more_tokens()):
+        if not self.has_more_tokens():
             return None
 
         tok_type = ''
@@ -21,7 +43,7 @@ class Tokenizer:
             value = ''
             while (self.__cursor < len( self.__program) and self.__program[self.__cursor].isalnum()):
                 value += self.__program[self.__cursor]
-                self.__cursor += 1 
+                self.__cursor += 1
             return (Token("NUMBER", int(value)))
 
         #Operators
@@ -34,15 +56,15 @@ class Tokenizer:
             or self.__program[self.__cursor] == "/"\
             or self.__program[self.__cursor] == "*"\
             or self.__program[self.__cursor] == "-"\
-            or self.__program[self.__cursor] == "+"):
-            tok_type = "BINARY_OPERATOR"
-            value = self.__program[self.__cursor]
-        
-        elif (self.__program[self.__cursor] == "~"):
-            tok_type = "UNARY_OPERATOR"
-            value = self.__program[self.__cursor]
-        
-        elif (self.__program[self.__cursor].isspace()):
+            or self.__program[self.__cursor] == "+"\
+            or self.__program[self.__cursor] == "~"\
+            or self.__program[self.__cursor] == "[" \
+            or self.__program[self.__cursor] == "]"):
+            char = self.__program[self.__cursor]
+            tok_type = Tokenizer.token_dict[char]
+            value = char
+
+        elif self.__program[self.__cursor].isspace():
             self.__cursor += 1
             return self.get_next_token()
 
@@ -52,7 +74,7 @@ class Tokenizer:
         self.__cursor += 1
         return Token(tok_type, value)
 
-class Token():
+class Token:
     def __init__(self, tok_type:str, value:object):
         self.type = tok_type
         self.value = value
